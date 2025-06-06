@@ -30,9 +30,18 @@ on:
       - deployment/test-requirements.txt
       - deployment/ansible/roles/**
   workflow_dispatch:
+<<<<<<< HEAD
     paths:
       - deployment/test-requirements.txt
       - deployment/ansible/roles/**
+=======
+      branches:
+        - fix/upgrade_test_and_fix_rollback
+      paths:
+        - deployment/test-requirements.txt
+        - deployment/ansible/roles/**
+
+>>>>>>> manual test for molecule
 jobs:
   changes:
     runs-on: ubuntu-latest
