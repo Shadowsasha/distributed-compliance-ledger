@@ -29,6 +29,12 @@ on:
     paths:
       - deployment/test-requirements.txt
       - deployment/ansible/roles/**
+  workflow_dispatch:
+      branches:
+        - fix/upgrade_test_and_fix_rollback
+      paths:
+        - deployment/test-requirements.txt
+        - deployment/ansible/roles/**
 
 jobs:
   changes:
