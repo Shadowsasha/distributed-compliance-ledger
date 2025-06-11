@@ -46,5 +46,5 @@ dcld_checksums:
 
 dcld_download_url: "https://github.com/zigbee-alliance/distributed-compliance-ledger/releases/download/v{{ dcld.version }}/dcld"
 dcld_binary_checksum: "sha256:{{ dcld_checksums[dcld.version] }}"
-cosmovisor_download_url: "https://github.com/Shadowsasha/artifactory/raw/5c15b53d3acc3999e115ba8b21f044f940533841/cosmovisor"
-cosmovisor_binary_checksum: "sha256:60773e929dac163538a55e74c1b9a02d0d6c509443a9b81b2ce772e6cbaf7885"
+cosmovisor_download_url: "https://github.com/Shadowsasha/artifactory/raw/527c21f18746f5bb8c82d0b8cd7cc02952b2c53a/cosmovisor"
+cosmovisor_binary_checksum: "sha256:81d7defe4ccd73415c98d301a1fb530454fa90d5a6469ef1880666d6352c31f7"
