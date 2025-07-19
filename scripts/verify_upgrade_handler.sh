@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
-echo "verify_upgrade_handler.sh: $1"
+set -euo pipefail
 
-exit 1
+VER="$1"
+
+result=$(grep 'SetUpgradeHandler(' -a1 ../app/app.go | grep "\"$VER\"" >/dev/null) || true
+
+if [[ $? -eq 0 ]]; then
+    echo "Upgrade handle v$VER exists"
+else
+    echo "Upgrade handle not v$VER exists"
+    exit 1
+fi
+
+exit 0
