@@ -2,14 +2,16 @@
 
 set -euo pipefail
 
-VER="$1"
+VER="\"$1\""
 
-result=$(grep 'SetUpgradeHandler(' -a1 ../app/app.go | grep "\"$VER\"" >/dev/null) || true
-
-if [[ $? -eq 0 ]]; then
-    echo "Upgrade handle v$VER exists"
+if echo "$VER" | grep 'dev"' &>/dev/null; then
+    echo "Develop release, skip upgrade handle verify"
+elif echo "$VER" | grep 'pre"' &>/dev/null; then
+    echo "Pre-release, skip upgrade handle verify"
+elif grep 'SetUpgradeHandler(' -a1 ../app/app.go | grep "$VER" &>/dev/null; then
+    echo "Upgrade handle $VER exists"
 else
-    echo "Upgrade handle not v$VER exists"
+    echo "Upgrade handle not $VER exists"
     exit 1
 fi
 
