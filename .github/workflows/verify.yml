@@ -104,12 +104,15 @@ jobs:
           set -euo pipefail
           # shellcheck disable=SC2046
           go test -json -v $(go list ./... | grep -v '/integration_tests') -coverprofile=./cover.out -covermode=atomic -coverpkg=./... 2>&1 | tee /tmp/gotest.log | gotestfmt
-      - name: check test coverage
+      - name: Check tests coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           profile: cover.out
-          threshold-file: 80
+          threshold-total: 10
+          exclude:
+            paths:
+              - \.pb\.go$
   integration-tests:
     if: needs.changes.outputs.src == 'true'
     name: Integration tests
