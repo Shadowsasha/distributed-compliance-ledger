@@ -82,9 +82,8 @@ jobs:
   coverage:
     name: Unit tests coverage
     runs-on: ubuntu-latest
-    needs:
-      - lint
     steps:
+    - uses: actions/checkout@master
     - uses: actions/setup-go@v5
       with:
         go-version: ^1.20
