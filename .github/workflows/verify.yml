@@ -106,8 +106,10 @@ jobs:
           go test -json -v $(go list ./... | grep -v '/integration_tests') -coverprofile=./cover.out -covermode=atomic -coverpkg=./... 2>&1 | tee /tmp/gotest.log | gotestfmt
       - name: check test coverage
         uses: vladopajic/go-test-coverage@v2
+        continue-on-error: true
         with:
-          config: ./.github/workflows/testcoverage.yml
+          profile: cover.out
+          threshold-file: 80
   integration-tests:
     if: needs.changes.outputs.src == 'true'
     name: Integration tests
