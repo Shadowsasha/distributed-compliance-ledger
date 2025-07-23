@@ -13,7 +13,6 @@ func (k Keeper) GetAccountO(
 	address sdk.AccAddress,
 ) (val types.Account, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKeyPrefix))
-	store = prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKeyPrefix))
 
 	b := store.Get(types.AccountKey(
 		address,
