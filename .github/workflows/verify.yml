@@ -79,42 +79,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: rojopolis/spellcheck-github-actions@0.35.0
-  coverage:
-    name: Unit tests coverage
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-go@v5
-      with:
-        go-version: ^1.20
-    - uses: actions/checkout@v4
-    - uses: actions/cache@v4
-      if: ${{ !env.ACT }}
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-    - uses: actions/checkout@v4
-      with:
-        # default fetch-depth is insufficent to find previous coverage notes
-        fetch-depth: 10
-
-    - uses: gwatts/go-coverage-action@v2
-      id: coverage
-      with:
-        # Optional coverage threshold
-        # use fail-coverage to determine what should happen below this threshold
-        # coverage-threshold: 80
-
-        test-pkgs: $(go list ./... | grep -v '/integration_tests')
-
-        # Ignore code-generated files when calculating coverage totals
-        ignore-pattern: |
-          \.pb\.go$
-          \_string\.go$
   unit-tests:
     name: Check unit tests
     runs-on: ubuntu-latest
@@ -139,7 +103,11 @@ jobs:
         run: |
           set -euo pipefail
           # shellcheck disable=SC2046
-          go test -json -v $(go list ./... | grep -v '/integration_tests') 2>&1 | tee /tmp/gotest.log | gotestfmt
+          go test -json -v $(go list ./... | grep -v '/integration_tests') -coverprofile=./cover.out -covermode=atomic -coverpkg=./... 2>&1 | tee /tmp/gotest.log | gotestfmt
+      - name: check test coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          config: ./.testcoverage.yml
   integration-tests:
     if: needs.changes.outputs.src == 'true'
     name: Integration tests
