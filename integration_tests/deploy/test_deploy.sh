@@ -48,7 +48,12 @@ GOBIN=${GOBIN:-${GOPATH}/bin}
 
 mkdir -p "$GOBIN"
 
-docker build -f integration_tests/deploy/Dockerfile-build -t dcl-deploy-build .
+if env | grep GOCOVERDIR; then
+    docker build --build-arg "GOCOVER=1" -f integration_tests/deploy/Dockerfile-build -t dcl-deploy-build .
+else
+    docker build --build-arg "GOCOVER=" -f integration_tests/deploy/Dockerfile-build -t dcl-deploy-build .
+fi
+
 docker container create --name dcl-deploy-build-inst dcl-deploy-build
 docker cp dcl-deploy-build-inst:/go/bin/dcld "$GOBIN"/
 docker cp dcl-deploy-build-inst:/go/bin/cosmovisor "$GOBIN"/

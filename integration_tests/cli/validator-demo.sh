@@ -119,6 +119,7 @@ test_divider
 
 echo "Locating the app to $DCL_DIR/cosmovisor/genesis/bin directory"
 docker exec $container mkdir -p "$DCL_DIR"/cosmovisor/genesis/bin
+docker exec $container mkdir -p "$DCL_DIR"/gocover
 docker exec $container cp -f ./dcld "$DCL_DIR"/cosmovisor/genesis/bin/
 
 echo "$account Start Node \"$node_name\""

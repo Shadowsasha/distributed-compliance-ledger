@@ -131,6 +131,14 @@ jobs:
       - name: Run integration tests
         shell: bash
         run: integration_tests/run-all.sh
+      - name: Gen tests coverage
+        shell: bash
+        run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
+      - name: Check tests coverage
+        uses: vladopajic/go-test-coverage@v2
+        continue-on-error: true
+        with:
+          config: ./.github/workflows/.testcoverage.yml
   lint:
     if: needs.changes.outputs.go == 'true'
     name: Check linter issues with golangci-lint tool

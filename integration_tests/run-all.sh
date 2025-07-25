@@ -16,6 +16,19 @@
 # Possible values: all (default) | cli | light | rest | upgrade | deploy | cli,light | cli,rest | light, rest | cli,light,rest | etc.
 TESTS_TO_RUN=${1:-all}
 
+SCRIPT_PATH="$(readlink -f "$0")"
+BASEDIR="$(dirname "$SCRIPT_PATH")"
+GOCOVER_ENABLED=false
+TMP_GOCOVERDIR="/tmp/gocover"
+
+if [ "${2:-}" = "cover" ]; then
+export GOCOVER=1
+export GOCOVERDIR="$BASEDIR/gocover"
+GOCOVER_ENABLED=true
+rm -rf "$GOCOVERDIR"
+mkdir -p "$GOCOVERDIR"
+fi
+
 DETAILED_OUTPUT=true
 
 LOCALNET_DIR=".localnet"
@@ -97,6 +110,27 @@ stop_rest_server() {
   killall dcld
 }
 
+collect_cover() {
+  log "Collect pool"
+  if "${GOCOVER_ENABLED}"; then
+		mkdir -p "$GOCOVERDIR"
+    rm -rf "$TMP_GOCOVERDIR"
+    mkdir -p "$TMP_GOCOVERDIR"
+    local cover_dirs=
+		for node in node0 node1 node2 node3 observer0; do
+			if [ -d "$LOCALNET_DIR/$node/gocover" ]; then
+        docker exec "$node" kill 1
+        docker wait "$node" >/dev/null
+        cover_dirs+="$LOCALNET_DIR/$node/gocover,"
+			fi
+		done
+    cover_dirs+="$GOCOVERDIR"
+    go tool covdata merge -i="$cover_dirs" -o="$TMP_GOCOVERDIR"
+    rm -rf "$GOCOVERDIR"/*
+    cp "$TMP_GOCOVERDIR"/* "$GOCOVERDIR"/
+  fi
+}
+
 # Global init
 set -euo pipefail
 
@@ -131,6 +165,7 @@ if [[ $TESTS_TO_RUN =~ "all" || $TESTS_TO_RUN =~ "upgrade" ]]; then
       exit 1
     fi
 
+    collect_cover
     cleanup_pool
 fi
 
@@ -143,6 +178,8 @@ if [[ $TESTS_TO_RUN =~ "all" || $TESTS_TO_RUN =~ "deploy" ]]; then
       log "$DEPLOY_SHELL_TEST failed"
       exit 1
     fi
+
+    collect_cover
 fi
 
 # Cli shell tests
@@ -163,6 +200,7 @@ if [[ $TESTS_TO_RUN =~ "all" || $TESTS_TO_RUN =~ "cli" ]]; then
       exit 1
     fi
 
+    collect_cover
     cleanup_pool
   done
 fi
@@ -185,6 +223,7 @@ if [[ $TESTS_TO_RUN =~ "all" || $TESTS_TO_RUN =~ "light" ]]; then
       exit 1
     fi
 
+    collect_cover
     cleanup_pool
   done
 fi
@@ -211,6 +250,7 @@ if [[ $TESTS_TO_RUN =~ "all" || $TESTS_TO_RUN =~ "rest" ]]; then
       exit 1
     fi
 
+    collect_cover
     cleanup_pool
   done
 fi
