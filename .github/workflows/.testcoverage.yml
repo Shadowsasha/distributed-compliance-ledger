@@ -3,6 +3,7 @@
 profile: 'cover.out'
 threshold:
   total: 10
+  file: 0
 exclude:
   paths:
     - \.pb\.go$

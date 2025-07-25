@@ -130,7 +130,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run integration tests
         shell: bash
-        run: integration_tests/run-all.sh rest cover
+        run: integration_tests/run-all.sh all cover
       - name: Gen tests coverage
         shell: bash
         run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
