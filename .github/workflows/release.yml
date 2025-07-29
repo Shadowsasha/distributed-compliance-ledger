@@ -183,7 +183,7 @@ jobs:
 
       - name: upload to GitHub (application binary)
         if: ${{ !matrix.bin }}
-        uses: actions/upload-release-asset@v1
+        uses: Fhwang0926/upload-release-asset@v1.1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
