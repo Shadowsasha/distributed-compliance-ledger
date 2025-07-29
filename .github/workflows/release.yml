@@ -191,6 +191,7 @@ jobs:
           asset_path: build/${{ env.BIN_NAME }}
           asset_name: ${{ env.BIN_NAME }}
           asset_content_type: application/octet-stream  # TODO check for less generic type
+          asset_label: test
 
       - name: upload to GitHub (archived application binary)
         if: ${{ !matrix.tgz }}
