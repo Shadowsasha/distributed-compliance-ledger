@@ -109,14 +109,11 @@ jobs:
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
-      - name: Rename coverage
-        shell: bash
-        run: mv cover.out unit_cover.out
       - name: Store tests coverage
         uses: actions/upload-artifact@v4
         with:
           name: unit_cover
-          path: unit_cover.out
+          path: cover.out
   integration-tests:
     if: needs.changes.outputs.src == 'true'
     name: Integration tests
@@ -147,14 +144,11 @@ jobs:
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
-      - name: Rename coverage
-        shell: bash
-        run: mv cover.out integration_cover.out
       - name: Store tests coverage
         uses: actions/upload-artifact@v4
         with:
           name: integration_cover
-          path: integration_cover.out
+          path: cover.out
   lint:
     if: needs.changes.outputs.go == 'true'
     name: Check linter issues with golangci-lint tool
@@ -175,7 +169,6 @@ jobs:
     if: needs.changes.outputs.src == 'true'
     needs:
       - unit-tests
-      - integration-tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -188,7 +181,7 @@ jobs:
         run: go build github.com/wadey/gocovmerge
       - name: ls
         shell: bash
-        run: ls -all .
+        run: ls -all unit_cover
       - name: Merge tests coverage
         shell: bash
         run: ./gocovmerge unit_cover.out integration_cover.out > cover.out
