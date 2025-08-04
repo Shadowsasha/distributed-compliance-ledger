@@ -135,7 +135,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run integration tests
         shell: bash
-        run: integration_tests/run-all.sh upgrade cover
+        run: integration_tests/run-all.sh all cover
       - name: Generate tests coverage
         shell: bash
         run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
@@ -169,6 +169,7 @@ jobs:
     if: needs.changes.outputs.src == 'true'
     needs:
       - unit-tests
+      - integration-tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -179,12 +180,9 @@ jobs:
       - name: Gocovmerge build
         shell: bash
         run: go build github.com/wadey/gocovmerge
-      - name: ls
-        shell: bash
-        run: ls -all unit_cover
       - name: Merge tests coverage
         shell: bash
-        run: ./gocovmerge unit_cover.out integration_cover.out > cover.out
+        run: ./gocovmerge unit_cover/cover.out integration_cover/cover.out > cover.out
       - name: Report tests coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
