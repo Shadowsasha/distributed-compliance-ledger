@@ -103,12 +103,15 @@ jobs:
         run: |
           set -euo pipefail
           # shellcheck disable=SC2046
-          go test -json -v $(go list ./... | grep -v '/integration_tests') -coverprofile=./cover.out -covermode=atomic -coverpkg=./... 2>&1 | tee /tmp/gotest.log | gotestfmt
-      - name: Check tests coverage
+          go test -json -v $(go list ./... | grep -v '/integration_tests') -coverprofile=./cover.out -covermode=set -coverpkg=./... 2>&1 | tee /tmp/gotest.log | gotestfmt
+      - name: Report tests coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
+      - name: Store tests coverage
+        shell: bash
+        run: mv ./cover.out ./unit_cover.out
   integration-tests:
     if: needs.changes.outputs.src == 'true'
     name: Integration tests
@@ -131,14 +134,17 @@ jobs:
       - name: Run integration tests
         shell: bash
         run: integration_tests/run-all.sh all cover
-      - name: Gen tests coverage
+      - name: Generate tests coverage
         shell: bash
         run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
-      - name: Check tests coverage
+      - name: Report tests coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
+      - name: Store tests coverage
+        shell: bash
+        run: mv ./cover.out ./integration_cover.out
   lint:
     if: needs.changes.outputs.go == 'true'
     name: Check linter issues with golangci-lint tool
@@ -155,6 +161,27 @@ jobs:
         with:
           version: v1.55
           args: --timeout 5m0s
+  cover:
+    if: needs.changes.outputs.src == 'true'
+    needs:
+      - unit-tests
+      - integration-tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ^1.20
+      - name: ls
+        shell: bash
+        run: ls -all .
+      - name: Merge tests coverage
+        shell: bash
+        run: gocovmerge ./unit_cover.out ./integration_cover.out > cover.out
+      - name: Report tests coverage
+        uses: vladopajic/go-test-coverage@v2
+        continue-on-error: true
+        with:
+          config: ./.github/workflows/.testcoverage.yml
   check:
     if: always()
     needs:
