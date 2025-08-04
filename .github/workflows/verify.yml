@@ -191,12 +191,25 @@ jobs:
         run: ls -all .
       - name: Merge tests coverage
         shell: bash
-        run: gocovmerge unit_cover.out integration_cover.out > cover.out
+        run: ./gocovmerge unit_cover.out integration_cover.out > cover.out
       - name: Report tests coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
+      - name: Generate html tests coverage
+        shell: bash
+        run: go tool cover -html=cover.out -o coverage.html
+      - name: Upload html coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.html
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            integration_cover
+            unit_cover
   check:
     if: always()
     needs:
@@ -206,6 +219,7 @@ jobs:
       - links
       - spell
       - gh-actions
+      - cover
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
