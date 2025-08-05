@@ -213,7 +213,7 @@ jobs:
         with:
           config: ./.github/workflows/.testcoverage.yml
           git-token: ${{ github.ref_name == 'main' && secrets.GITHUB_TOKEN || '' }}
-          git-branch: badges
+          git-branch: cover_badges
       - name: Generate html test coverage
         shell: bash
         run: go tool cover -html=cover.out -o coverage.html
