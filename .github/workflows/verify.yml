@@ -104,14 +104,12 @@ jobs:
           set -euo pipefail
           # shellcheck disable=SC2046
           go test -json -v $(go list ./... | grep -v '/integration_tests') -coverprofile=./cover.out -covermode=set -coverpkg=./... 2>&1 | tee /tmp/gotest.log | gotestfmt
-      - name: Report tests coverage
+      - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
-          git-token: ${{ secrets.GITHUB_TOKEN }}
-          git-branch: badges
-      - name: Store tests coverage
+      - name: Store test coverage
         uses: actions/upload-artifact@v4
         with:
           name: unit_cover
@@ -138,15 +136,15 @@ jobs:
       - name: Run integration tests
         shell: bash
         run: integration_tests/run-all.sh all cover
-      - name: Generate tests coverage
+      - name: Generate test coverage
         shell: bash
         run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
-      - name: Report tests coverage
+      - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
-      - name: Store tests coverage
+      - name: Store test coverage
         uses: actions/upload-artifact@v4
         with:
           name: integration_cover
@@ -182,15 +180,17 @@ jobs:
       - name: Gocovmerge build
         shell: bash
         run: go build github.com/wadey/gocovmerge
-      - name: Merge tests coverage
+      - name: Merge test coverage
         shell: bash
         run: ./gocovmerge unit_cover/cover.out integration_cover/cover.out > cover.out
-      - name: Report tests coverage
+      - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
-      - name: Generate html tests coverage
+          git-token: ${{ github.ref_name == 'main' && secrets.GITHUB_TOKEN || '' }}
+          git-branch: badges
+      - name: Generate html test coverage
         shell: bash
         run: go tool cover -html=cover.out -o coverage.html
       - name: Upload html coverage
