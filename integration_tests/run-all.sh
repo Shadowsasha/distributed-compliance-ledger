@@ -20,6 +20,7 @@ SCRIPT_PATH="$(readlink -f "$0")"
 BASEDIR="$(dirname "$SCRIPT_PATH")"
 GOCOVER_ENABLED=false
 TMP_GOCOVERDIR="/tmp/gocover"
+NODES_GOCOVERDIR="$BASEDIR/nodes_gocover"
 
 if [ "${2:-}" = "cover" ]; then
 export GOCOVER=1
@@ -27,6 +28,8 @@ export GOCOVERDIR="$BASEDIR/gocover"
 GOCOVER_ENABLED=true
 rm -rf "$GOCOVERDIR"
 mkdir -p "$GOCOVERDIR"
+rm -rf "$NODES_GOCOVERDIR"
+mkdir -p "$NODES_GOCOVERDIR"
 fi
 
 DETAILED_OUTPUT=true
@@ -113,21 +116,20 @@ stop_rest_server() {
 collect_cover() {
   log "Collect pool"
   if "${GOCOVER_ENABLED}"; then
-		mkdir -p "$GOCOVERDIR"
     rm -rf "$TMP_GOCOVERDIR"
     mkdir -p "$TMP_GOCOVERDIR"
-    local cover_dirs=
+    local cover_dirs="$NODES_GOCOVERDIR"
 		for node in node0 node1 node2 node3 observer0; do
 			if [ -d "$LOCALNET_DIR/$node/gocover" ]; then
         docker exec "$node" kill 1
         docker wait "$node" >/dev/null
-        cover_dirs+="$LOCALNET_DIR/$node/gocover,"
+        cover_dirs+=",$LOCALNET_DIR/$node/gocover"
 			fi
 		done
-    cover_dirs+="$GOCOVERDIR"
+    echo "$cover_dirs"
     go tool covdata merge -i="$cover_dirs" -o="$TMP_GOCOVERDIR"
-    rm -rf "$GOCOVERDIR"/*
-    cp "$TMP_GOCOVERDIR"/* "$GOCOVERDIR"/
+    rm -rf "$NODES_GOCOVERDIR"/*
+    cp "$TMP_GOCOVERDIR"/* "$NODES_GOCOVERDIR"/
   fi
 }
 

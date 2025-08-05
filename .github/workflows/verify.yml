@@ -27,6 +27,7 @@ on:
 
 jobs:
   changes:
+    name: Checking for changes
     runs-on: ubuntu-latest
     outputs:
       go: ${{ steps.filter.outputs.go }}
@@ -109,6 +110,14 @@ jobs:
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
+      - name: Generate html test coverage
+        shell: bash
+        run: go tool cover -html=cover.out -o coverage.html
+      - name: Upload html coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit_coverage
+          path: coverage.html
       - name: Store test coverage
         uses: actions/upload-artifact@v4
         with:
@@ -138,12 +147,26 @@ jobs:
         run: integration_tests/run-all.sh all cover
       - name: Generate test coverage
         shell: bash
-        run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
+        run: go tool covdata textfmt -i=integration_tests/gocover -o cli_cover.out && go tool covdata textfmt -i=integration_tests/nodes_gocover -o nodes_cover.out
+      - name: Gocovmerge build
+        shell: bash
+        run: go build github.com/wadey/gocovmerge
+      - name: Merge test coverage
+        shell: bash
+        run: ./gocovmerge cli_cover.out nodes_cover.out > cover.out
       - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/workflows/.testcoverage.yml
+      - name: Generate html test coverage
+        shell: bash
+        run: go tool cover -html=cover.out -o coverage.html
+      - name: Upload html coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration_coverage
+          path: coverage.html
       - name: Store test coverage
         uses: actions/upload-artifact@v4
         with:
@@ -167,6 +190,7 @@ jobs:
           args: --timeout 5m0s
   cover:
     if: needs.changes.outputs.src == 'true'
+    name: Report on overall test coverage
     needs:
       - unit-tests
       - integration-tests
@@ -196,7 +220,7 @@ jobs:
       - name: Upload html coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: all_coverage
           path: coverage.html
       - uses: geekyeggo/delete-artifact@v5
         with:
@@ -205,6 +229,7 @@ jobs:
             unit_cover
   check:
     if: always()
+    name: Final check
     needs:
       - unit-tests
       - integration-tests
