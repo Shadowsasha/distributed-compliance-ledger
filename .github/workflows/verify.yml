@@ -186,6 +186,7 @@ jobs:
     if: needs.changes.outputs.src == 'true'
     name: Report on overall test coverage
     needs:
+      - changes
       - unit-tests
       - integration-tests
     runs-on: ubuntu-22.04
