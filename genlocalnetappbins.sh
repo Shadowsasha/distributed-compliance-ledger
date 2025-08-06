@@ -6,7 +6,7 @@ VERSION_DIR="${3:-genesis}"
 MAINNET_STABLE_VERSION="${4:-""}"
 LOCALNET_DIR=".localnet"
 
-if env | grep GOCOVERDIR; then
+if env | grep GOCOVER=1; then
     docker build --build-arg "GOCOVER=1" -f ${DOCKERFILE} -t ${IMAGE_TAG} .
 else
     docker build --build-arg "GOCOVER=" -f ${DOCKERFILE} -t ${IMAGE_TAG} .

@@ -147,13 +147,7 @@ jobs:
         run: integration_tests/run-all.sh all cover
       - name: Generate test coverage
         shell: bash
-        run: go tool covdata textfmt -i=integration_tests/gocover -o cli_cover.out && go tool covdata textfmt -i=integration_tests/nodes_gocover -o nodes_cover.out
-      - name: Gocovmerge build
-        shell: bash
-        run: go build github.com/wadey/gocovmerge
-      - name: Merge test coverage
-        shell: bash
-        run: ./gocovmerge cli_cover.out nodes_cover.out > cover.out
+        run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
       - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
