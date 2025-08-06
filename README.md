@@ -2,8 +2,6 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Unit Tests](https://github.com/zigbee-alliance/distributed-compliance-ledger/workflows/Check%20Tests%20and%20Documentation/badge.svg)](https://github.com/zigbee-alliance/distributed-compliance-ledger/actions/workflows/verify.yml)
-<!-- markdown-link-check-disable-next-line -->
-![Test coverage](https://raw.githubusercontent.com/org/project/cover_badges/.badges/main/coverage.svg)
 
 If you are interested in how to build and run the project locally, please look at [README-DEV](README-DEV.md)
 
