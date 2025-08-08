@@ -27,7 +27,7 @@ on:
 
 jobs:
   changes:
-    name: Checking for changes
+    name: Check for changes
     runs-on: ubuntu-latest
     outputs:
       go: ${{ steps.filter.outputs.go }}
@@ -110,14 +110,6 @@ jobs:
         continue-on-error: true
         with:
           config: ./.github/.testcoverage.yml
-      - name: Generate html test coverage
-        shell: bash
-        run: go tool cover -html=cover.out -o coverage.html
-      - name: Upload html coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit_coverage
-          path: coverage.html
       - name: Store test coverage
         uses: actions/upload-artifact@v4
         with:
@@ -152,15 +144,7 @@ jobs:
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
-          config: ./.github/.testcoverage.yml
-      - name: Generate html test coverage
-        shell: bash
-        run: go tool cover -html=cover.out -o coverage.html
-      - name: Upload html coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration_coverage
-          path: coverage.html
+          config: ./.github/.testcover
       - name: Store test coverage
         uses: actions/upload-artifact@v4
         with:
@@ -209,6 +193,9 @@ jobs:
           config: ./.github/.testcoverage.yml
           git-token: ${{ github.ref_name == 'main' && secrets.GITHUB_TOKEN || '' }}
           git-branch: cover_badges
+      - name: Filter test coverage
+        shell: bash
+        run: scripts/filter_coverage.sh
       - name: Generate html test coverage
         shell: bash
         run: go tool cover -html=cover.out -o coverage.html
