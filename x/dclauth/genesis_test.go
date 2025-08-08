@@ -10,7 +10,7 @@ import (
 	"github.com/zigbee-alliance/distributed-compliance-ledger/x/dclauth"
 	"github.com/zigbee-alliance/distributed-compliance-ledger/x/dclauth/types"
 )
-
+// test
 func TestGenesis(t *testing.T) {
 	genesisState := types.GenesisState{
 		AccountList: []types.Account{
