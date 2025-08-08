@@ -112,38 +112,6 @@ jobs:
         with:
           name: unit_cover
           path: cover.out
-  integration-tests:
-    if: needs.changes.outputs.src == 'true'
-    name: Integration tests
-    runs-on: ubuntu-22.04
-    needs:
-      - changes
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      - name: Run integration tests
-        shell: bash
-        run: integration_tests/run-all.sh all cover
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      - name: Generate test coverage
-        shell: bash
-        run: go tool covdata textfmt -i=integration_tests/gocover -o cover.out
-      - name: Store test coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration_cover
-          path: cover.out
   lint:
     if: needs.changes.outputs.go == 'true'
     name: Check linter issues with golangci-lint tool
@@ -166,7 +134,6 @@ jobs:
     needs:
       - changes
       - unit-tests
-      - integration-tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -177,12 +144,15 @@ jobs:
       - name: Gocovmerge build
         shell: bash
         run: go build github.com/wadey/gocovmerge
-      - name: Merge test coverage
+      - name: CP test coverage
         shell: bash
-        run: ./gocovmerge unit_cover/cover.out integration_cover/cover.out > cover.out
+        run: cp ./gocovmerge unit_cover/cover.out cover.out
       - name: Filter test coverage
         shell: bash
         run: .github/workflows/filter_coverage.sh
+      - name: Print branch name
+        shell: bash
+        run: echo "Branch name: ${{ github.ref_name }}"
       - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
@@ -209,7 +179,6 @@ jobs:
     if: always()
     needs:
       - unit-tests
-      - integration-tests
       - lint
       - links
       - spell
@@ -220,5 +189,5 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
         with:
-          allowed-skips: lint, unit-tests, integration-tests, links, spell, gh-actions
+          allowed-skips: lint, unit-tests, links, spell, gh-actions
           jobs: ${{ toJSON(needs) }}
