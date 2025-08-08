@@ -146,7 +146,7 @@ jobs:
         run: go build github.com/wadey/gocovmerge
       - name: CP test coverage
         shell: bash
-        run: cp ./gocovmerge unit_cover/cover.out cover.out
+        run: cp unit_cover/cover.out cover.out
       - name: Filter test coverage
         shell: bash
         run: .github/workflows/filter_coverage.sh
