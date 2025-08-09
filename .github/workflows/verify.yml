@@ -150,15 +150,12 @@ jobs:
       - name: Filter test coverage
         shell: bash
         run: .github/workflows/filter_coverage.sh
-      - name: Print branch name
-        shell: bash
-        run: echo "Branch name is ${{ github.event.pull_request.head.ref }}"
       - name: Report test coverage
         uses: vladopajic/go-test-coverage@v2
         continue-on-error: true
         with:
           config: ./.github/.testcoverage.yml
-          git-token: ${{ github.event.pull_request.head.ref == 'main' && secrets.GITHUB_TOKEN || '' }}
+          git-token: ${{ github.ref_name == 'master' && secrets.GITHUB_TOKEN || '' }}
           git-branch: cover_badges
       - name: Generate html test coverage
         shell: bash
